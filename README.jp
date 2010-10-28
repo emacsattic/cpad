@@ -1,0 +1,105 @@
+cpadとは
+========
+
+cpad は Emacsバッファー上で簡単な計算を行なうためのパッケージである。
+萩谷昌己氏が開発した red.el をもとに立川察理が拡張をほどこした。
+簡単な関数型言語によるプログラミング機能があるので発想次第でその活用範囲は広がる。
+ただしその再帰的な構造ゆえ、複雑もしくは大量の計算には適していない。
+
+特徴
+====
+
+  * Emacsバッファー上で計算を実行する
+  * 簡単な関数型言語を内蔵している
+  * 単位付き計算が可能である
+  * 標準ライブラリーが準備されている
+    基本的な算術・統計・リスト処理・医療に関する関数があり、ユーザーは簡単にこれらを拡張することができる。
+
+
+ファイル構成
+============
+
+  * cpad.el
+    本体のソース・ファイルである。
+  * README.jp
+    このファイルである。
+  * .cpad
+    標準ライブラリである。
+  * units.el
+    単位計算のライブラリーである。
+  * eparser.el
+    パーサーである。
+  * cpad.texinfo
+    より詳細なドキュメントである。
+  * calc.red
+    計算のサンプルである。
+
+
+動作条件
+========
+
+本ライブラリーは Debian GNU/Linux(potato) 上で emacs 21.2.1 を用いて開発された。
+これ以外の環境での動作確認は行なっていない。
+
+以下のパッケージもしくはファイルに依存している。
+  * clパッケージ
+  * eieioパッケージ
+  * calcパッケージ
+  * units.el
+  * eparser.el
+
+インストール
+============
+
+  1. 依存するパッケージ(cl,eieio,calc)をインストールする。
+  2. units.el,eparser.el,cpad.elを load-path の通ったパスにコピーする。
+  3. 以下のコードを .emacs などにコピーする。
+
+    (autoload 'cpad "cpad" "A calculation pad" t)
+    (autoload 'cpad* "cpad" "A calculation pad" t)
+    (global-set-key "\C-cr" 'cpad) ; you may change it to whatever key you like.
+    (global-set-key "\C-cx" 'cpad*)
+    (setq max-specpdl-size 10000)
+
+
+
+使い方
+======
+
+
+計算したい式の始めにカーソルを置いてcpadのコマンドを実行するだけである。
+例えば、次の式の先頭にカーソルを置いて、コマンド cpad* を実行してほしい。
+
+  0.3e2 * sqrt(0.05e-2);
+
+インタラクティブなコマンドは以下の2つだけである。
+
+  * M-cpad*(C-cx)
+    カーソルのある場所から式を構文解析し、valueが得られるまで簡略を繰り返す。
+  * M-cpad(C-cr)
+    カーソルのある場所から式を構文解析し、call-by-valueのredexを1ステップだけ簡略する。
+    デバッグやアルゴリズムの学習などに利用できる。
+
+より詳細な使い方は、附属の cpad.texinfo から生成された cpad.info を参照してほしい。
+また同封されている calc.red にサンプルの式が多数提示されている。
+
+TODO
+=====
+
+  * 連立方程式の自動解法
+    制約伝播 constraint propagation を用いて、ある変数について連立方程式を解く。
+
+ライセンス
+==========
+
+GPLにしたがう限り本プログラムの改変・再配布は自由である。
+
+参照
+====
+
+ * http://physics.nist.gov/cuu/Units/index.html
+
+-----------------------------------------------------------------------------------------------
+Name:      立川察理 Akimichi Tatsukawa 
+Email:     akimichi@mbox.co.jp
+Web Page:  http://akimichi.homeunix.net/~emile/aki/

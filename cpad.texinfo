@@ -1,0 +1,692 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename cpad.info
+@settitle CPad: Calculation Pad in Emacs buffer
+@c %**end of header
+
+@defindex cf
+
+@iftex
+@parskip 4pt plus 2pt
+@end iftex
+
+@ifinfo
+@format
+START-INFO-DIR-ENTRY
+* cpad: (cpad).       A simple functional language that runs on Emacs buffer.
+END-INFO-DIR-ENTRY
+@end format
+@end ifinfo
+
+@titlepage
+@sp 10
+@center @titlefont{cpad}
+@vskip 0pt plus 1 fill
+Copyright @copyright{} 2002 Akimichi Tatsukawa
+Note that this program is adapted from red.el that is originally
+developed by Masami Hagiya.
+@end titlepage
+@paragraphindent 2
+
+
+@node Top, , , (dir)Top
+@comment  node-name,  next,  previous,  up
+
+Copyright @copyright{} 2002 Akimichi Tatsukawa@*
+Note that this program is adapted from red.el that is originally
+developed by Masami Hagiya.
+
+
+
+
+@sp 1
+CPad is an elisp  package that enables a calculation in Emacs buffer
+using a simple functional language.
+It immediately parses and calculates a expression, and will replace it
+with the result.
+Allowed data types are number,list, symbol,and unit.
+A simple standard library is provided, which contains limited features
+of arithmatic,list processing,statistical and clinical functions. Not to
+mention, you can define your own functions easily to enrich its
+facilities.
+@sp 1
+
+Warning:
+@itemize
+@item The program is still in a beta stage.
+@item The syntax of the language might be drastically changed until version 1.0.
+@item Little in this manual has been written.
+@item I am not good at writing english documents.
+@end itemize
+
+
+@menu
+* Overview::
+* Installation::
+* Calculation with CPad::  Let's calculate with CPad
+* Programming with CPad::  Write some simple programs with CPad
+* Unit handling::      How to calculate with units
+* Concept Index::
+* Function Index::
+* TODO::
+@end menu
+
+@node Overview, Installation, Top, Top
+@comment  node-name,  next,  previous,  up
+@chapter Overview
+
+CPad is a simple functional language that runs on Emacs buffer. It is
+designed to behave like a programmable calculator.
+
+The program was originally developed by Masami Hagiya as a part of
+Boomborg project. Its underlying concept is 'the calculation as
+editing paradigm'. Mr. Hagiya wrote that the ultimate goal of using the computer is
+making a document. And the aim of this concept is to synthesize the
+process of both editing and calculating.
+
+The most unique feature of CPad that I have added is a unit manipulating
+facility. Number that is to be calculated can have a unit with it,and
+functions also can have unit arguments.
+
+
+@menu
+* Features::
+* Limitations::
+@end menu
+
+@node Features, Limitations, , Overview
+@comment  node-name,  next,  previous,  up
+@section Features
+
+@itemize
+@item Embedded calculator
+
+Calculation is done on any buffer such as latex, C source. So you don't
+have to start other heavy calculator program just to calculate simple arithmatics .
+@item A simple functional language based on lambda calculus
+
+The language of CPad is a functional language. It has a terse
+syntax and infix notation for math expressions. Since it is based on
+lambda calculus in theory, it is supposed to accomplish all the
+calculation that the computer can do. I mean it theoretically, of course.
+
+@itemize @minus
+@item lambda expression
+@item recursive function
+@item higher order function
+
+Functions can accept functions as its arguments or return a function itself.
+@end itemize
+@item Allowed data types are number,list,symbol, and unit
+
+It is the most unique feature of CPad that unit manipulations are available.
+@end itemize
+
+@node Limitations, ,Features, Overview
+@comment  node-name,  next,  previous,  up
+@section Limitations
+
+There are several limitations in CPad. I believe that they are trade-off for
+its symplicity.
+
+@itemize
+@item Low performance
+
+Since the recursive technique is frequently used, a lot of resources are exhausted.
+@item No assignment statement
+@item No local variable
+@item No loop
+
+Loop is only accomplished by recursive function.
+@item No debugger
+
+Instead of debugger, stepwise execution of the function is provided.
+@end itemize
+
+@node Installation, Calculation with CPad, Overview, Top
+@comment  node-name,  next,  previous,  up
+@chapter @cindex Installation
+
+Before starting installation, the following packages are required in
+addition to cpad.el. Make sure they are all installed properly.
+
+@itemize
+@item cl package
+@item eieio package
+@item calc package
+@item eparser.el
+
+A tiny parser written in Elisp. The work of the same author as cpad.el.
+@item units.el
+
+Unit handling library. The work of the same author as cpad.el.
+@end itemize
+
+First of all, expand the archive, and copy cpad.el to the directory you
+like. Copy the .cpad file to $HOME. And following codes should be add at $HOME/.emacs .
+@sp 1
+@example
+(setq load-path (append load-path (list "/your/path/to/the/library")))
+(setq max-specpdl-size 10000)
+
+(global-set-key "\C-cr" 'cpad)
+(global-set-key "\C-cx" 'cpad*)
+
+(autoload 'cpad "cpad" "A calculation pad" t)
+(autoload 'cpad* "cpad" "A calculation pad" t)
+@end example
+
+Please make sure to restart emacs, and you are ready to run CPad.
+
+
+
+@node Calculation with CPad, Programming with CPad, Installation, Top
+@comment  node-name,  next,  previous,  up
+@chapter Calculation with CPad
+
+Calculation with CPad is done as follows.
+
+@enumerate
+@item
+Writing a expression in a buffer
+@item
+Put the cursor at the top of the expression
+@item
+Execute @kbd{C-cx} or @kbd{M-x cpad*} to start calculation
+@end enumerate
+
+
+@menu
+* Arithmatic Calculation::
+* Function Call::
+* Data Types::
+@end menu
+
+
+@node Arithmatic Calculation, Function Call, How to Install, Calculation with CPad
+@comment  node-name,  next,  previous,  up
+@section @cindex Arithmatic Calculation
+
+Let's try some calculations. Put the following code in a buffer.
+
+@example
+12 * 0.3e-2
+@end example
+
+Then you move the cursor to the top of the expression, and invoke
+@kbd{C-cx} or @kbd{M-x cpad*}.
+The expression will be replaced by its result as follows.
+
+@example
+0.036000000000000004
+@end example
+
+Allowed arithmatic operators are shown below.
+
+@itemize
+@item +
+@item -
+@item *
+@item /
+@end itemize
+
+Here is a list of functions defined in .cpad that calculate numbers.
+
+@itemize
+@item decr(n) @cfindex{decr(n)}
+@item incr(n) @cfindex{incr(n)}
+@item square(n) @cfindex{square(n)}
+@item odd(n) @cfindex{odd(n)}
+@item even(n) @cfindex{even(n)}
+@item fact(n) @cfindex{fact(n)}
+@item comb(m,n) @cfindex{comb(m,n)}
+@item perm(m,n) @cfindex{perm(m,n)}
+@item expt(m,n) @cfindex{expt(m,n)}
+@item gcd(m,n) @cfindex{gcd(m,n)}
+@item prime(n) @cfindex{prime(n)}
+@end itemize
+
+
+@node Function Call, List Processing, Arithmatic Calculation, Calculation with CPad
+@comment  node-name,  next,  previous,  up
+@section @cindex Function Call
+
+Calling functions can be done by writing a function name followed by
+arguments. When you put your cursor to the top of the function name and
+execute @kbd{C-cx} or @kbd{M-x cpad*}, and you will invoke the function
+call and get the answer.
+
+@example
+  fact(5)
+@end example
+
+@node Data Types,, Function Call, Calculation with CPad
+@comment  node-name,  next,  previous,  up
+@section @cindex Data Types
+
+Allowed data types in CPad are number,list,symbol, and unit.
+
+@menu
+* Number::
+* List::
+* Symbol::
+* Unit::
+@end menu
+
+
+@node Number, List,,Data Types
+@comment  node-name,  next,  previous,  up
+@subsection @cindex Number
+
+Allowed numeric types are integer and float. Using calc package, CPad
+stores integers to arbitrary precision and the range of acceptable
+values is from `10^-3999999' (inclusive) to `10^4000000' (exclusive),
+plus the corresponding negative values and zero.
+
+
+@node List, Symbol, Number, Data Types
+@comment  node-name,  next,  previous,  up
+@subsection @cindex List
+
+A list is expressed by series of elements surrouned by the square brackets [].
+The list can have different data types as its elements.
+
+@example
+  [1,dog,3.00,4]
+@end example
+
+List can be nested.
+
+@example
+  [10e-3,[a,b],1099]
+@end example
+
+Empty list is expressed either by [] or nil.
+
+Followings are list processing functions.
+@itemize
+@item cons
+@item is_nil
+@item is_list
+@item first
+@item rest
+@item length
+@item sum
+@item mean
+@end itemize
+
+
+@node Symbol,,List, Data Types
+@comment  node-name,  next,  previous,  up
+@subsection @cindex Symbol
+
+The identifier can be treated as symbol, unless it is followed by
+parenthesis or it is a operand of operator.
+
+There are several @cindex{reserved words} that are not able to be used as
+symbol. Most of them are not evaluated except the truth values. Usually
+the truth values (true and false) are used in conditional statement.
+
+All reserved words are listed below.
+
+@itemize
+@item if
+@item then
+@item else
+@item lam
+@item true
+@item false
+@item nil
+@end itemize
+
+@node Unit,,Symbol,Data Types
+@comment  node-name,  next,  previous,  up
+@subsection @cindex Unit
+
+A unit is represented by a number following unit symbols embraced by {}.
+For example, units shown below are all accepted.
+
+@example
+10{mg};
+6.6732e-11{(N*m2)/kg2}; Avogadros number
+@end example
+
+To get more information about unit handling, please read @ref{Unit handling}.
+
+@node Programming with CPad, Unit handling, Calculation with CPad, Top
+@comment  node-name,  next,  previous,  up
+@chapter Programming with CPad
+
+CPad is not only a calculator but a kind of programming language. You
+can define your own function to meet your needs.
+
+Please look at the standard library $HOME/.cpad and calc.red, that
+contain numerous examples for CPad programming.
+
+
+@menu
+* Function Definition::
+* Variable Definition::
+* Conditionals::
+* Lambda Expression::
+* Recursive Function::   How to write a loop
+* Symbol manipulation::
+@end menu
+
+@node Function Definition, Variable Definition, , Programming with CPad
+@comment  node-name,  next,  previous,  up
+@section @cindex Function Definition
+
+Functions can be defined either in $HOME/.cpad or a current buffer. Its
+syntax is as follows.
+
+@example
+function_name(args1,args2, ...) := function_body ;
+@end example
+
+The function_name should be an identifier that is to be matched by
+regular expression "[a-zA-Z]+[a-zA-Z_0-9']*".
+
+The scope of the function is either the standard library file
+$HOME/.cpad or the upstream region from the current point in the current
+buffer.
+
+The called function is first searched backwardly from the current point
+in the current buffer. If it is not found, it will be searched in the
+file $HOME/.cpad backwardly.
+
+It is easy to write higher order funcions in CPad.
+The identifier is evaluated only if it is followed by parenthesis.
+Therefore, when you define your function with argument list without
+parenthesis and actual argument with parenthesis, the function behave as
+the higer order function.
+If this explanation is confusing, the next example, that calculates the
+derivative of the cubic function, will help.
+
+@example
+dx() := 0.0001;
+deriv(f) := lam(x)((f(x+dx())-f(x))/dx());
+@end example
+
+Note that the argument 'f in argument list does't have parenthesis, but
+the actual argument 'f in the body of the function is followed by
+parenthesis.
+And also note that the function 'deriv is a higher order funcion,
+because the function body is lambda expression.
+
+To calculate the derivative of the cubic function at 5, the function
+'derive should be followed by parenthesis.
+
+@example
+cube(x) := x*x*x;
+deriv(cube)(5);
+@end example
+
+
+If you want to use local variables inside a function definition, please
+read @ref{Lambda Expression}.
+
+@node Variable Definition, Conditionals,Function Definition,Programming with CPad
+@comment  node-name,  next,  previous,  up
+@section @cindex Variable Definition
+
+In CPad, only the global variable is allowed. It is actually the
+function without arguments, so it will be definded like below.
+
+@example
+variable_name() := value ;
+@end example
+
+The variable_name should be an identifier that is to be matched by
+regular expression "[a-zA-Z]+[a-zA-Z_0-9']*".
+
+The scope and search priority of the variable is same as that of the
+function.
+
+@node Conditionals, Lambda Expression,Function Definition,Programming with CPad
+@comment  node-name,  next,  previous,  up
+@section @cindex Conditionals
+
+The only conditional statement the CPad provide is @code{if then else}.
+For example,
+
+@example
+odd(n) := if mod(n,2) == 0
+                then false else true;
+@end example
+
+@node Lambda Expression, , Conditionals, Programming with CPad
+@comment  node-name,  next,  previous,  up
+@section @cindex Lambda Expression
+
+The lambda expression is a function itself. It is evaluated when
+arguments follows.
+The syntax of lambda expression is shown below.
+
+@example
+  lam( variables ) expression
+@end example
+
+For example, the lambda expression that multiplies argument x and y, can
+be written like below.
+
+@example
+  lam(x,y) x*y
+@end example
+
+Nothing happens when you invoke @kbd{M-x cpad*}, since it is a function
+itself.
+In order to evaluate, you have to put arguments following it. Move the
+cursor to the top of the following lambda expression, and invoke
+@kbd{M-x cpad*}. Now,you will get 6.
+
+@example
+  (lam(x,y) x*y)(2,3)
+@end example
+
+There is another usage for the lambda expression. You can have local
+variables inside a function definition using lambda expression.
+
+For example, the function definition shown below is equal to setting
+local variable x to 10.
+
+@example
+  test(a,b) := (lam(x)(a+b)*x)(10);
+@end example
+
+Here is a more practical example. There are two versions of median
+function shown. The first one doesn't use lambda expression, so it consumes a
+lot of time to calculate a sorted list every time. The second one sorts a list only
+once, and uses it as a local variable many times to improve performance.
+
+@example
+median(L) := if odd(length(L)) then nth((length(L)-1)/2,qsort(L))
+		else (nth(length(L)/2,qsort(L)) + nth(1+(length(L)/2),qsort(L)))/2;
+median(L) := (lam(sortedL) if odd(length(sortedL)) then nth((length(sortedL)-1)/2,sortedL)
+		else (nth(length(sortedL)/2,sortedL) + nth(1+(length(sortedL)/2),sortedL))/2 (qsort(L)))(L);
+@end example
+
+
+@node Recursive Function,,Lambda Expression, Programming with CPad
+@comment  node-name,  next,  previous,  up
+@section @cindex Recursive Function
+
+Although CPad doesn't provide loop, it can be acomplished using recursive
+function technique.
+
+@example
+fact(n) := if n == 0 then 1
+                else n * fact(n - 1);
+@end example
+
+Note that mutually recursive functions are also possible.
+
+@example
+take(l) := if is_nil(l) then nil
+        	else cons(first(l),skip(rest(l)));
+
+skip(l) := if is_nil(l) then nil
+                else take(rest(l));
+@end example
+
+@node Symbol manipulation,,Recursive functions, Programming with CPad
+@comment  node-name,  next,  previous,  up
+@section @cindex Symbol manipulation
+
+The CPad also can handle symbols. Only one funcition 'eq is provided.
+
+@itemize
+@item eq(sym1,sym2) @cfindex{eq(sym1,sym2)}
+@end itemize
+
+Using eq predicate, function can have symbols as its arguments.
+
+@example
+EBV(sex) := if eq(sex,male) then 3.29 * BSA() - 1.229
+		else if eq(sex,female) then 3.47 * BSA() - 1.954
+		else error;
+@end example
+
+@node Unit handling, , Programming with CPad, Top
+@comment  node-name,  next,  previous,  up
+@chapter @cindex Unit handling
+
+The CPad can handle calculation with units. There are two ways to use
+units. One is to calculate numbers with units, the other is to call
+functions with unit arguments. The SI unit system is adopted in CPad.
+
+A unit is represented by a number following unit symbols embraced by {}.
+For example, units shown below are all accepted.
+
+@example
+10{mg};
+2500.0{(cm * cm)});
+6.6732e-11{(N*m2)/kg2}; Avogadros number
+@end example
+
+
+@menu
+* Arithmatics with Units::   Calculate arithmatics with units
+* Functions with Units::     Create and call functions with units
+* Unit manipulating functions::
+* Creating user-defined units::
+@end menu
+
+@node Arithmatics with Units, Functions with Units, ,Unit handling
+@comment  node-name,  next,  previous,  up
+@section Arithmatics with Units
+
+Arithmatics with units are done just like number.
+
+@example
+10{mg} + 14{mg};
+20{km/hr} * 20{min};
+@end example
+
+
+
+@node Functions with Units, ,Arithmatics with Units ,Unit handling
+@comment  node-name,  next,  previous,  up
+@section Functions with Units
+
+Function can have arguments with unit. Note that in the body of the
+function, arguments do not have units with them.
+
+@example
+BMI(weight{kg},height{cm}) := (weight / square(height)) * 10000;
+@end example
+
+After defining a function, the function can be called with units.
+Note that calling arguments are automatically converted to suitable
+units according to the function definition.
+
+@example
+BMI(70{kg},175{cm});
+BMI(70000{g},1.75{m});
+@end example
+
+
+
+@node Unit manipulating functions, Creating user-defined units, Functions with Units, Unit handling
+@comment  node-name,  next,  previous,  up
+@section Unit manipulating functions
+
+@itemize
+@item conv(from,to) @cfindex{conv(from,to)} 
+
+Funtion conv(from,to) converts @var{from} quantity to @var{to} quantity.
+@item coerce(from,to) @cfindex{coerce(from,to)}
+
+Coerce a conversion @var{from} quantity or numeric object to @var{to} quantity object.
+@item standardize(quan) @cfindex{standardize(quan)}
+
+Convert @var{quan} quantity to the quantity that is compose of all basic
+unit in SI system.
+@end itemize
+
+@node Creating user-defined units,,Unit manipulating functions,Unit handling
+@comment  node-name,  next,  previous,  up
+@section @cindex Creating user-defined units
+
+Creating a user-defined unit, the lisp function @code{SI:add-user-unit} have to
+be evaluated.
+
+@defmac SI:add-user-unit unit-symbol unit-constructor
+Add user defined unit of symbol @var{unit-symbol} using the constructor @var{unit-constructor}.
+@end defmac
+
+For example, the following code adds 'drop unit that represents one drop
+of injection.
+
+@example
+(SI:add-user-unit 'drop (SI:make-basic-units 'drop (SI:make-dimention 'drop '(drop . 1))))
+@end example
+
+After defining a new unit, the calculation with the unit is allowed.
+
+@example
+1{drop} + 2{drop};
+@end example
+
+@node Concept Index, Function Index, Unit handling, Top
+@comment  node-name,  next,  previous,  up
+@unnumbered Concept Index
+
+@printindex cp
+
+@node Function Index, TODO, Concept Index, Top
+@comment  node-name,  next,  previous,  up
+@unnumbered Function Index
+
+@printindex cf
+
+
+@node TODO, , Function Index, Top
+@comment  node-name,  next,  previous,  up
+@chapter @cindex TODO
+
+@itemize
+@item Implementing an equation solver using the constraint propagation technique.
+
+@example
+E() :=: m() * c() * c();
+E() := 10000; Energy
+c() := 2.9979250e8; Velocity of lights
+m(); Calculate a mass of which has a energy 10000;
+@end example
+
+@item Enable to byte-compile.
+@end itemize
+
+@contents
+@bye
+
+
+@c Local Variables: ***
+@c mode:auto-fill ***
+@c fill-column:72 ***
+@c comment-column:0 ***
+@c comment-start: "@c "  ***
+@c comment-end:"***" ***
+@c End:  ***
+
