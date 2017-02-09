@@ -93,7 +93,7 @@
 (setq max-specpdl-size 100000)
 
 (require 'cl)
-(require 'units)
+(require 'cpad-units)
 (require 'eieio)
 ;(require 'calc)
 ;(require 'calc-ext)

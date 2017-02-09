@@ -1,4 +1,4 @@
-;;; units.el -- a units library in elisp
+;;; cpad-units.el -- a units library in elisp
 
 ;;; Licence: 
 ;;
@@ -1653,9 +1653,9 @@ Standardized symbol is either a symbol or (* symbol symbol ...) or (/ (* symbol 
 
 
 
-(provide 'units)
+(provide 'cpad-units)
 
-;;; units.el ends here
+;;; cpad-units.el ends here
 
 
 ;;; Local Variables:
